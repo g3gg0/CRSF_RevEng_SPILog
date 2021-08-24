@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ip>
+ <presets version="12.1">
+  <preset
+     name="TEI0003_single_W9864G6JT-6"
+     kind="altera_avalon_new_sdram_controller"
+     version="All"
+     description="8 MBytes sdram memory">
+   <parameter name="casLatency" value="3" />
+   <parameter name="refreshPeriod" value="15.625" />
+   <parameter name="rowWidth" value="12" />
+   <parameter name="powerUpDelay" value="200.0" />
+   <parameter name="TWR" value="12.0" />
+   <parameter name="TRP" value="15.0" />
+   <parameter name="numberOfChipSelects" value="1" />
+   <parameter name="initRefreshCommands" value="2" />
+   <parameter name="TAC" value="5.0" />
+   <parameter name="TRCD" value="15.0" />
+   <parameter name="columnWidth" value="8" />
+   <parameter name="generateSimulationModel" value="false" />
+   <parameter name="TRFC" value="60.0" />
+   <parameter name="dataWidth" value="16" />
+   <parameter name="numberOfBanks" value="4" />
+  </preset>
+ </presets>
+</ip>

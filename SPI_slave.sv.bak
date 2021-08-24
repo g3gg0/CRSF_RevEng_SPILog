@@ -1,0 +1,22 @@
+
+
+module spi_slave
+(
+   input wire mosi,
+   input wire miso,
+   input wire ss,
+   input wire clk,
+    
+   output wire [8:0] data
+);
+
+always @ (posedge reset or posedge clk or posedge ss)
+begin
+   if(reset) begin
+    
+   end else if (ss) begin
+		data = 0b100000000;
+   end else if (clk) begin
+
+	end
+end
