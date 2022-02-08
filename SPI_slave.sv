@@ -17,8 +17,11 @@ module spi_slave
    output wire data_valid
 );
 
+reg [7:0] received_bytes = 0;
 reg [2:0] received_bits = 0;
-reg [7:0] received_data = 0;
+reg [7:0] received_data_mosi = 0;
+reg [7:0] received_data_miso = 0;
+reg received_write = 0;
 reg last_ss = 0;
 reg last_ss_check = 0;
 
@@ -38,35 +41,6 @@ always @(posedge fifo_clk) data_req_sync[2] <= data_req_sync[1];
 always @(negedge fifo_clk) data_req_sync[1] <= data_req_sync[0];
 always @(posedge fifo_clk) data_req_sync[0] <= data_req;
 
-/*
-
-always @ (posedge fifo_clk)
-begin
-	if(data_req_cmp3 != data_req_cmp2) begin
-		data_req_cmp3 <= data_req_cmp2;
-		data_valid <= 1;
-		data <= data_internal;
-	end else begin
-		data_valid <= 0;
-	end
-end
-
-always @ (negedge fifo_clk)
-begin
-	if(data_req_cmp2 != data_req_cmp1) begin
-		data_req_cmp2 <= data_req_cmp1;
-	end else begin
-	end
-end
-
-always @ (posedge fifo_clk)
-begin
-	if(data_req_cmp1 != data_req) begin
-		data_req_cmp1 <= data_req;
-	end
-end
-
-*/
 
 
 always @ (posedge data_complete or posedge ss)
@@ -87,7 +61,11 @@ always @ (negedge clk)
 begin
 	if (!ss) begin
 		if(data_complete) begin
-			data <= received_data;
+			if(received_write || received_bytes < 2) begin
+				data <= received_data_mosi;
+			end else begin
+				data <= received_data_miso;
+			end
 			data_req <= !data_req;
 		end else if(data_half) begin
 			if(ss_deactivated) begin
@@ -107,15 +85,25 @@ begin
 	
 		if(last_ss_check != last_ss) begin
 			last_ss_check <= last_ss;
-			received_data <= { 7'b0, mosi };
+			received_data_mosi <= { 7'b0, mosi };
+			received_data_miso <= { 7'b0, miso };
 			received_bits <= 1;
+			received_bytes <= 0;
+			received_write <= mosi;
 			data_half <= 0;
 			data_complete <= 0;
 		end else begin
-			received_data <= { received_data[6:0], mosi };
+			received_data_mosi <= { received_data_mosi[6:0], mosi };
+			received_data_miso <= { received_data_miso[6:0], miso };
 			
 			data_half <= (received_bits == 3);
-			data_complete <= (received_bits == 7);
+			
+			if(received_bits == 7) begin
+				received_bytes <= received_bytes + 1;
+				data_complete <= 1;
+			end else begin
+				data_complete <= 0;
+			end
 			
 			received_bits <= received_bits + 1;
 		end
